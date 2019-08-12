@@ -1,0 +1,60 @@
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+from PIL import Image
+import glob
+import os
+import time 
+
+startTime = time.time()
+
+# Professor, We have represented all images for a range of threshold value according to your advice.
+# Here Threshold value 1% means 256*(1-.01) = 253. 
+# For simplicity all 30 images was combined together in 6X5 matrix. 
+# We developed the code in python numpy, highly efficient to perform 30 image operation in 0.52 second!
+
+
+Threshold = 10  # 0 to 100
+
+
+# Main function for Glare
+def glare_detect(name, threshold):
+    im1 = cv2.imread(name, 0)
+    size = im1.shape
+    Bright = np.max(im1)
+    #print(f"Brightest pixel value = {Bright}")
+    photo_mask1 = np.where(im1>threshold, 150, 0)
+    #threshold = np.full(size, 100)
+    #overlay = np.multiply((photo_mask/255), im1)
+    RGBoverlay = np.zeros((size[0], size[1], 3), 'uint8')
+    RGBoverlay[..., 0] = np.minimum(np.array(im1)-(photo_mask1*.9), 255)#np.maximum(photo_mask*(.5)+overlay*(.5), 255)
+    RGBoverlay[..., 1] = np.minimum(np.array(im1)-photo_mask1, 255)
+    RGBoverlay[..., 2] = np.minimum(np.array(im1)-photo_mask1, 255)
+    #plt.imshow(RGBoverlay)
+    #RGbImage = Image.fromarray(RGBoverlay)
+    #RGbImage.save("haha.png")
+    return RGBoverlay
+    
+    
+# Running the function to return Glare
+#glare_detect('1.jpg', 180)
+
+# FUnction to create a boc full of those grid image
+def run(LThreshold):
+    for col in range(2):
+        for row in range(3):
+            trow = glare_detect(f'{2*col+row}.jpg', 255*(100-LThreshold)/100)
+            if row == 0:
+                rowimg = trow
+            else:
+                rowimg = np.hstack((rowimg, trow))
+        if col == 0:
+            tcol = rowimg
+        else:
+            tcol = np.vstack((tcol, rowimg))
+    plt.imsave(f"Glare 100 images/Glare Threshold {LThreshold}.jpg", tcol)
+
+for x in range(0, 100):
+    run(x)
+
+print ('The script took {0} second !'.format(time.time() - startTime))
