@@ -1,0 +1,24 @@
+import cv2
+import matplotlib.pyplot as mpimage
+import glob
+from PIL import Image
+import os
+import numpy
+
+path = "Rand Lebel Resized Validation/"
+extention = ".jpg"
+Newextention = ".png"
+NewFName = "res/"
+
+if not os.path.exists(path+NewFName):
+    os.mkdir(path+NewFName)
+
+for filename in glob.glob(f"{path}*.*"):
+    name, extension = os.path.splitext(os.path.basename(filename))
+    img2 = cv2.imread(filename)
+    img3 = cv2.resize(img2,(256,256))
+    im = cv2.cvtColor(img3, cv2.COLOR_RGB2GRAY)
+    print(filename, "\t Previous shape = ", img2.shape, "\tNow = ", im.shape)
+    im2 = Image.fromarray(im)
+    mpimage.imshow(im2)
+    im2.save(f"{path}{NewFName}{name}.png")
